@@ -1,0 +1,43 @@
+{% extends 'base/login_base.html' %}
+
+{% block header %}
+  {% block title %}Log In{% endblock %}
+{% endblock %}
+
+{% block contentrow %}
+          <div class="col-lg-6 col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="title">Login</h5>
+              </div>
+			  {% if error %}
+			    <div class="alert alert-danger" role="alert">
+	    	      {{ error }}
+			    </div>
+			  {% endif %}
+              <div class="card-body">
+                <form method="post">
+                  <div class="form-group">
+                    <label>Username</label><BR>
+					<input name="username" id="username" required><BR>
+                  </div>
+				  <div class="form-group">
+                    <label>Password</label><BR>
+					<input type="password" name="password" id="password" required>
+				  </div>
+				  <div class="card-footer">
+					<button type="submit" class="btn btn-fill btn-info animation-on-hover"" value="Log In">Login</button>
+			      </div>
+                </form>
+              </div>
+            </div>
+          </div>
+<!--
+  <form method="post">
+    <label for="username">Username</label><BR>
+    <input name="username" id="username" required><BR>
+    <label for="password">Password</label><BR>
+    <input type="password" name="password" id="password" required><BR>
+    <input type="submit" value="Log In">
+  </form> -->
+{% endblock %}

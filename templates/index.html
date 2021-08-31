@@ -1,0 +1,281 @@
+{% extends "dash.html" %}
+    {% block title %}Activity Summary{% endblock %}
+    {% block header %}Home{% endblock %}
+    {% block contentrow %} 
+         <!-- 2 table row -->
+        <div class="row">
+          <div class="col-lg-4 col-md-12">
+            <div class="card ">
+              <div class="card-header ">
+                <h5 class="card-category">Schools</h5>
+				<div class="table-responsive">
+                  <table class="table tablesorter " id="1">
+                    <thead class=" text-primary">
+                      <th><i class="tim-icons icon-wifi text-success"></i> County </th><th></th></thead>
+				     <TR><TD> 
+					  <form method="post" action="/update">
+                       <h4 class="card-title">
+			          <select class="form-control" id="level_select">				
+				      {% for c in counties %}
+				      <option>{{ c[0] }}</option>
+				      {% endfor %}
+				      </select></TD><TD><button type="submit" class="btn btn-fill btn-info animation-on-hover">Submit</button></TD></TR></TABLE>
+				    </form>
+                </div>
+			  </div>
+            </div>
+		   </div>
+		   <div class="col-lg-6">
+            <div class="card ">
+              <div class="card-header ">
+                <h5 class="card-category">Total Cases</h5>
+				<div class="table-responsive">
+                  <table class="table tablesorter " id="2">
+				  <thead class=" text-primary">
+                    <th><i class="tim-icons icon-refresh-01 text-success "></i> <SPAN CLASS= "text-success"><B>Page Last Updated: {{ last_updated }}</B></SPAN></th><th></th><th></th></thead>
+                    <tr><td><i class="tim-icons icon-single-02 text-primary "></i>Summary </td><td colspan="2">All Cases</td></tr>
+					<tr><td class=" text-primary">{{ last_updated }} Total</td><td class=" text-primary">Student</td><td>Employee</td></tr>
+                    
+					<tr><td class=" text-primary">{{ todays_total }}</td><td class=" text-primary">{{ students }}</td><td>{{ employees }}</td></tr>
+					<tbody>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+         </div>	
+		 <div class="row">
+		  <div class="col-lg-11">
+		    <div class="card card">
+			 <div class="row2">
+			   <div class="col-sm-6">
+                    <h5 class="card-category">Total Cases</h5>
+  			        <h4 class="card-title"><i class="tim-icons icon-sound-wave text-info "></i> Charts <h4>
+                </div>
+			    <div class="col-sm-6 text-left">
+                  <div class="btn-group btn-group-toggle float-right" data-toggle="buttons">
+                      <label class="btn btn-sm btn-primary btn-simple active" id="a">
+                        <input type="radio" name="options" autocomplete="off" checked> Last 14 Days
+                      </label>
+                      <label class="btn btn-sm btn-primary btn-simple " id="b">
+                        <input type="radio" name="options" autocomplete="off"> District Total
+                      </label>
+                  </div>
+                </div>
+			  </div>
+			  <div class="card-body ">	      
+				<div id="chart" class="chart-area">
+                  <canvas id="timeChart"></canvas>
+                </div>
+              </div>
+            </div>
+		  </div>
+        </div>
+				<div class="row">
+          <div class="col-lg-5 col-md-12">
+			<div class="card ">
+              <div class="card-header ">
+                <h5 class="card-category">Daily</h5>
+                <h4 class="card-title"><i class="tim-icons icon-alert-circle-exc text-danger "></i>  {{ todays_total }} Cases reported on {{ last_updated }} </h3>
+              </div>
+              <div class="card-body ">
+                <div class="table-responsive">
+                  <table class="table tablesorter " id="4">
+                    <thead class=" text-primary">
+					  <th>
+  					    School
+					  </th>
+                      <th>
+                        Student
+                      </th>
+                      <th>
+                        Employee
+                      </th>
+                    </thead>
+                    <tbody>
+					  <div class="card-body ">
+						  {% for case in all_today %}
+						  <tr>
+							<td>
+							  <i class="tim-icons icon-button-power text-danger  "></i> {{ case[0] }}
+							</td>
+							<td>
+								{{ case[1] }}
+							</td>
+							<td>
+								{{ case[2] }}
+							</td>
+							<td>
+								
+							</td>
+						  </tr>
+						  {% endfor %}						
+					  </div>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>	 
+        </div>
+		<div class="row">
+          <div class="col-lg-9 col-md-12">
+			<div class="card ">
+              <div class="card-header ">
+                <h5 class="card-category">Schools</h5>
+                <h4 class="card-title"><i class="tim-icons icon-button-power text-danger "></i> Leon Schools</h3>
+              </div>
+              <div class="card-body ">
+                <div class="table-responsive">
+                  <table class="table tablesorter " id="4">
+                    <thead class=" text-primary">
+					  <th>
+  					    School
+					  </th>
+                      <th>
+                        Student
+                      </th>
+                      <th>
+                        Employee
+                      </th>
+					  <th>
+                        Total
+                      </th>
+                    </thead>
+                    <tbody>
+					  <div class="card-body ">
+						  {% for s in school_list_e	 %}
+						  <tr>
+							<td>
+							  <i class="tim-icons icon-button-power text-danger  "></i> {{ s[0] }}
+							</td>
+							<td>
+								{{ s[1] }}
+							</td>
+							<td>
+								{{ s[2] }}
+							</td>
+							<td>
+								{{ s[1]+s[2] }}
+							</td>
+						  </tr>
+						  {% endfor %}						
+					  </div>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>	 
+        </div>
+					
+		
+    {% endblock %}
+	{% block jsinclude %}
+	
+	<!-- Chart JS -->
+    <script src="{{ url_for('static', filename='js/plugins/chartjs.min.js') }}"></script>
+	<!-- javascript init -->
+	<script>
+		function createChart(label, data, canvas_id) {
+			gradientBarChartConfiguration = {
+			  maintainAspectRatio: false,
+			  legend: {
+				display: false
+			  },
+
+			  tooltips: {
+				backgroundColor: '#f5f5f5',
+				titleFontColor: '#333',
+				bodyFontColor: '#666',
+				bodySpacing: 4,
+				xPadding: 12,
+				mode: "nearest",
+				intersect: 0,
+				position: "nearest"
+			  },
+			  events: [],
+			  responsive: true,
+			  scales: {
+				yAxes: [{
+
+				  gridLines: {
+					drawBorder: false,
+					color: 'rgba(29,140,248,0.1)',
+					zeroLineColor: "transparent",
+				  },
+				  ticks: {
+					suggestedMin: 0,
+					suggestedMax: 5,
+					padding: 5,
+					fontColor: "#dbdbdb"
+				  }
+				}],
+
+				xAxes: [{
+
+				  gridLines: {
+					drawBorder: false,
+					color: 'rgba(29,140,248,0.1)',
+					zeroLineColor: "transparent",
+				  },
+				  ticks: {
+					padding: 5,
+					fontColor: "#dbdbdb"
+				  }
+				}]
+			  }
+			};
+		
+			var data_array = data;
+			var label_array = label;
+
+			var ctx = document.getElementById(canvas_id).getContext('2d');
+			var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+			gradientStroke.addColorStop(1, 'rgba(29,140,248,0.7)');
+			gradientStroke.addColorStop(0.4, 'rgba(29,140,248,0.06)');
+			gradientStroke.addColorStop(0, 'rgba(29,140,248,0)'); //blue colors
+			var config = {			
+				type: 'bar',
+				responsive: true,
+					legend: {
+						display: false
+					},
+				data: {
+					labels: label_array,
+					datasets: [{
+						label: "Run Time",
+						fill: true,
+						backgroundColor: gradientStroke,
+						hoverBackgroundColor: gradientStroke,
+						borderColor: '#1f8ef1',
+						borderWidth: 2,
+						borderDash: [],
+						borderDashOffset: 0.0,
+						data: data_array,
+						}]
+					},
+				options: gradientBarChartConfiguration
+				
+			};
+			if (typeof chartInstance !== 'undefined') {
+			  chartInstance.destroy()
+			}
+			var chartInstance = new Chart(ctx, config);
+          }
+
+		  if (typeof chartInstance === 'undefined') {
+		    
+			createChart({{ date_array }}, {{ count_array }}, 'timeChart');  
+		  }
+		  $("#a").click(function() {
+	        createChart({{ date_array }}, {{ count_array }}, 'timeChart');
+		  });
+		  $("#b").click(function() { 
+			createChart({{ date_array }}, {{ count_array }}, 'timeChart');
+		  });
+		</script>
+	{% endblock %}
+

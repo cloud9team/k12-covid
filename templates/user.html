@@ -1,0 +1,23 @@
+{% macro input(name, value='', type='text', size=20) -%}
+			<input type="{{ type }}" name="{{ name }}" value="{{
+				value|e }}" size="{{ size }}">
+		{%- endmacro %}
+
+<html>
+  <head>
+    <title>Lorgnette</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="lorgnette/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Please login</h1>
+      <br>
+      <p>{{ input('username') }}</p>
+		<p>{{ input('password', type='password') }}</p>
+        {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}
+      {% endif %}
+    </div>
+  </body>
+</html>
