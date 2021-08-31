@@ -1,3 +1,22 @@
+# Packages #
+############
+*.pyc
+*.pyo
+*.db
+*.pid
+
+
+### IntelliJ IDEA ###
+#####################
+.idea
+
+### Logs ###
+###########
+logs/
+
+
+
+
 # Compiled source #
 ###################
 *.class
