@@ -1,30 +1,27 @@
 {% extends "dash.html" %}
     {% block title %}Case Summary{% endblock %}
-    {% block header %}Home{% endblock %}
+    {% block header %}School Report{% endblock %}
     {% block contentrow %} 
          <!-- 2 table row -->
         <div class="row">
           <div class="col-lg-4 col-md-12">
             <div class="card ">
               <div class="card-header ">
-                <h5 class="card-category">Schools</h5>
+                <h5 class="card-category">School</h5>
 				<div class="table-responsive">
                   <table class="table tablesorter " id="1">
                     <thead class=" text-primary">
                       <th><i class="tim-icons icon-wifi text-success"></i> County </th><th></th></thead>
-				     <TR><TD> 
-					  <form method="post" action="/">
-                       <h4 class="card-title">
-			          <select class="form-control" id="level_select">				
-				      {% for c in counties %}
-				      <option>{{ c[0] }}</option>
-				      {% endfor %}
-				      </select></TD><TD><button type="submit" class="btn btn-fill btn-info animation-on-hover">Submit</button></TD></TR></TABLE>
-				    </form>
+				     <TR><TD>{{ location.school }}  {{ location.school_type }} District {{ location.district }}<BR>
+						     {{ location.address }} {{ location.city }}, {{ location.state }} {{ location.zip_code }}<BR>
+							 {{ location.phone }}
+						</TD></TR>
+                   </table>
+
                 </div>
 			  </div>
             </div>
-		   </div>
+		   </div>	
 		   <div class="col-lg-6">
             <div class="card ">
               <div class="card-header ">
@@ -46,45 +43,18 @@
           </div>
          </div>	
 		 <div class="row">
-		  <div class="col-lg-10">
-		    <div class="card card-chart">
-			 <div class="row2">
-			   <div class="col-sm-6 text-left">
-                    <h5 class="card-category">Total Cases</h5>
-  			        <h4 class="card-title"><i class="tim-icons icon-sound-wave text-info "></i> Charts <h4>
-                </div>
-			    <div class="col-sm-6 ">
-                  <div class="btn-group btn-group-toggle float-right" data-toggle="buttons">
-                      <label class="btn btn-sm btn-primary btn-simple active" id="a">
-                        <input type="radio" name="options" autocomplete="off" checked> Last 14 Days
-                      </label>
-                      <label class="btn btn-sm btn-primary btn-simple " id="b">
-                        <input type="radio" name="options" autocomplete="off"> District Total
-                      </label>
-                  </div>
-                </div>
-			  </div>
-			  <div class="card-body">	      
-				<div class="chart-area">
-                  <canvas id="timeChart"></canvas>
-                </div>
-              </div>
-            </div>
-		  </div>
-        </div>
-		<div class="row">
           <div class="col-lg-5 col-md-12">
 			<div class="card ">
               <div class="card-header ">
                 <h5 class="card-category">Daily</h5>
-                <h4 class="card-title"><i class="tim-icons icon-alert-circle-exc text-danger "></i>  {{ todays_total }} Cases reported on {{ last_updated }} </h3>
+                <h4 class="card-title"><i class="tim-icons icon-alert-circle-exc text-danger "></i>  Cases summary for {{ detail }} </h3>
               </div>
               <div class="card-body ">
                 <div class="table-responsive">
                   <table class="table tablesorter " id="4">
                     <thead class=" text-primary">
 					  <th>
-  					    School
+  					    Date
 					  </th>
                       <th>
                         Student
@@ -95,20 +65,16 @@
                     </thead>
                     <tbody>
 					  <div class="card-body ">
-						  {% for case in all_today %}
+						  {% for d in school_detail %}
 						  <tr>
 							<td>
-                              {% if case[1]+case[2] > 1 %}
-							   <i class="tim-icons icon-alert-circle-exc text-danger  "></i> 
-                              {% else %}
-                               <i class="tim-icons icon-button-power text-success  "></i>
-                              {% endif %} {{ case[0] }}
+							  <i class="tim-icons icon-button-power text-danger  "></i> {{ d[1] }}
 							</td>
 							<td>
-								{{ case[1] }}
+								{{ d[2] }}
 							</td>
 							<td>
-								{{ case[2] }}
+								{{ d[3] }}
 							</td>
 							<td>
 								
@@ -122,62 +88,8 @@
               </div>
             </div>
           </div>	 
-          <div class="col-lg-5 col-md-12">
-			<div class="card ">
-              <div class="card-header ">
-                <h5 class="card-category">Schools</h5>
-                <h4 class="card-title"><i class="tim-icons icon-double-right text-danger "></i> Individual School Totals - click school name for report dates</h3>
-              </div>
-              <div class="card-body ">
-                <div class="table-responsive">
-                  <table class="table tablesorter " id="5">
-                    <thead class=" text-primary">
-					  <th>
-  					    School
-					  </th>
-                      <th>
-                        Student
-                      </th>
-                      <th>
-                        Employee
-                      </th>
-					  <th>
-                        Total
-                      </th>
-                    </thead>
-                    <tbody>
-					  <div class="card-body ">
-						  {% for s in school_list_e	 %}
-						  <tr>
-							<td>
-							{% if s[1]+s[2] < 15 %}  
-                            <i class="tim-icons icon-button-power text-success  "></i>
-                            {% elif (s[1]+s[2] > 15 and s[1]+s[2] < 25) %}
-                            <i class="tim-icons icon-button-power text-warning  "></i>
-                            {% else %}
-                            <i class="tim-icons icon-alert-circle-exc text-danger  "></i>
-                            {% endif %}
-                            <a href="./report?school={{ s[0] }}">{{ s[0] }}</a>
-							</td>
-							<td>
-								{{ s[1] }}
-							</td>
-							<td>
-								{{ s[2] }}
-							</td>
-							<td>
-								{{ s[1]+s[2] }}
-							</td>
-						  </tr>
-						  {% endfor %}						
-					  </div>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>	 
         </div>
+	
 					
 		
     {% endblock %}
@@ -244,8 +156,8 @@
 			var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
 
 			gradientStroke.addColorStop(1, 'rgba(29,140,248,0.7)');
-			gradientStroke.addColorStop(0.4, 'rgba(29,140,248,0.5)');
-			gradientStroke.addColorStop(0, 'rgba(29,140,248,0.1)'); //blue colors
+			gradientStroke.addColorStop(0.4, 'rgba(29,140,248,0.06)');
+			gradientStroke.addColorStop(0, 'rgba(29,140,248,0)'); //blue colors
 			var config = {			
 				type: 'bar',
 				responsive: true,
@@ -283,7 +195,7 @@
 	        createChart({{ date_array }}, {{ count_array }}, 'timeChart');
 		  });
 		  $("#b").click(function() { 
-			createChart({{ date_array2 }}, {{ count_array2 }}, 'timeChart');
+			createChart({{ date_array }}, {{ count_array }}, 'timeChart');
 		  });
 		</script>
 	{% endblock %}

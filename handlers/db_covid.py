@@ -90,12 +90,15 @@ class Schools(Base):
     id = Column(MEDIUM_TYPE, primary_key=True)
     school = Column(String)
     school_type = Column(String(128))
+    principal = Column(String(128))
+    address = Column(String(128))
     county = Column(String(128))
     city = Column(String(128))
     state = Column(String(128))
-    zip = Column(String(128))
+    zip_code = Column(String(128))
     lat = Column(FLOAT_TYPE)
     lon = Column(FLOAT_TYPE)
+    phone = Column(String(128))
     district = Column(Integer)
 #    student_case = relationship("Cases"(Schools.school==Cases.school_name)")
 
@@ -136,6 +139,7 @@ def session_scope(autoflush=False):
         session.close()
 
 
+
 def county_list(session):
     counties = session.query(distinct(Schools.county)). \
         order_by(Schools.county).all()
@@ -163,10 +167,13 @@ def get_all_schools(session):
     return schools
 
 #LEAFLET MARKERS
-def get_school_loc(session):
-    school_markers = session.query(Schools.school, Schools.school_type, Schools.lat, Schools.lon). \
-        group_by(Schools.school_type, Schools.school)
-
+def get_school_loc(session, name='All'):
+    if name == 'All':
+        school_markers = session.query(Schools). \
+            group_by(Schools.school_type, Schools.school)
+    else:
+        school_markers = session.query(Schools). \
+           filter(Schools.school==name).one()
     return school_markers
 
 
@@ -178,6 +185,16 @@ def get_schools(session):
               group_by(Cases.school_name)
                 # order_by(desc('student', 'employee'))
     return schools
+
+
+def get_report(session, school_detail):
+    school = session.query(Cases.school_name, Cases.date_reported, Cases.student, Cases.employee). \
+               filter(Cases.school_name==school_detail). \
+                       order_by(Cases.date_reported).all()
+    return school
+
+
+
 
 def add_case(session, school_name, student, employee, date_reported):
     session.add(Cases(school_name=school_name,student=student,employee=employee,date_reported=date_reported))
@@ -199,8 +216,10 @@ def get_today(session):
 
     return todays_count
 
+
 def get_today_cases(session):
-    current_date = datetime.now().strftime('%m-%d-%Y')
+#    current_date = datetime.now().strftime('%m-%d-%Y')
+    current_date = last_update(session)
     todays_cases = session.query(distinct(Cases.school_name), func.sum(Cases.student).label('student'), \
          func.sum(Cases.employee).label('employee')). \
             filter(Cases.date_reported==current_date). \
@@ -242,6 +261,23 @@ def get_weeks(session):
     count_array = ('[' + count_array[:-2] + ']')
 
     return date_array, count_array
+
+def get_all(session):
+    date_array = ''
+    count_array = ''
+    dates = session.query(distinct(Cases.date_reported)).order_by(asc(Cases.date_reported))
+    for d in dates:
+        count = session.query((func.sum(Cases.employee) + func.sum(Cases.student).label('total'))). \
+            filter(Cases.date_reported==d[0]).scalar()
+        if count == None:
+            count = 0
+        count_array += str(count) + ", "
+        date_array += d[0][:-5].replace('-', '') + ", "
+    date_array = ('[' + date_array[:-2] + ']')
+    count_array = ('[' + count_array[:-2] + ']')
+
+    return date_array, count_array
+
 
 
 #def district_totals(session):

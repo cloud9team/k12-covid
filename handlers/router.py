@@ -16,7 +16,7 @@ import json
 from handlers import db_covid
 from handlers.db_covid import Session, county_list, get_schools, get_schools_type, add_case, \
     check_user_exists, student_total, employee_total, get_weeks, get_count, get_all_schools, \
-    get_today, get_weeks, get_today_cases, get_school_loc, last_update
+    get_today, get_weeks, get_today_cases, get_school_loc, last_update, get_report, get_all
 import importlib
 import ast
 from datetime import datetime
@@ -56,7 +56,6 @@ def login_required(view):
 @router.route('/')
 def index():
     with db_covid.session_scope() as session:
-        count_array = ''
         today = datetime.now().strftime('%m-%d-%Y')
         all_today = get_today_cases(session)
         cases = get_count(session)
@@ -66,9 +65,10 @@ def index():
         employees = employee_total(session)
         school_list_e = get_schools(session)
         date_array, count_array = get_weeks(session)
+        date_array2, count_array2 = get_all(session)
         last_updated = last_update(session)
-#        districts = district_totals(session)
-    return render_template("index.html", last_updated=last_updated, today=today, all_today=all_today, \
+
+    return render_template("index.html", date_array2=date_array2, count_array2=count_array2, last_updated=last_updated, today=today, all_today=all_today, \
         count_array=count_array, date_array=date_array, todays_total=todays_total, cases=cases, \
             counties=counties ,students=students, employees=employees, school_list_e=school_list_e)
 
@@ -108,6 +108,17 @@ def newcases():
            students=students, employees=employees, current_date=current_date)
 
 
+@router.route('/report', methods=('GET', 'POST'))
+def report():
+    detail = request.args.get('school')
+    current_date = datetime.now().strftime('%m-%d-%Y')
+    with db_covid.session_scope() as session:
+        school_detail = get_report(session, detail)
+        if detail == None:
+            return redirect(url_for('router.index'))
+        location = get_school_loc(session, detail)
+        return render_template("report.html",location=location, detail=detail, school_detail=school_detail, current_date=current_date)
+
 @router.route('/map', methods=('GET', 'POST'))
 @login_required
 def map():
@@ -131,7 +142,7 @@ def login():
                 error = 'Invalid Credentials.'
 
             if error is None:
-                webSession.clear()
+#                webSession.clear()
                 webSession['user_id'] = userData[1]
                 return redirect(url_for('router.newcases'))
         if error:
@@ -150,5 +161,5 @@ def logout():
     user = None
     flash('You are now logged out')
     return redirect(url_for('router.login'))
-
+ 
 # End Blueprint
