@@ -7,3 +7,4 @@ utm>=0.4.2
 flower>=0.9.3
 mysqlclient>=1.3.12
 alembic>=1.4.0
+secure>=0.3.0
