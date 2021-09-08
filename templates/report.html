@@ -7,14 +7,14 @@
           <div class="col-lg-4 col-md-12">
             <div class="card ">
               <div class="card-header ">
-                <h5 class="card-category">School</h5>
+                <h5 class="card-category">Site Report</h5>
 				<div class="table-responsive">
                   <table class="table tablesorter " id="1">
                     <thead class=" text-primary">
-                      <th><i class="tim-icons icon-wifi text-success"></i> County </th><th></th></thead>
-				     <TR><TD>{{ location.school }}  {{ location.school_type }} District {{ location.district }}<BR>
-						     {{ location.address }} {{ location.city }}, {{ location.state }} {{ location.zip_code }}<BR>
-							 {{ location.phone }}
+                      <th><i class="tim-icons icon-wifi text-success"></i> School </th><th></th></thead>
+				     <TR><TD>{{ location.school }}  {{ location.school_type }} District {{ location.district }}</TD></TR>
+				     <TR><TD>{{ location.address }} {{ location.city }}, {{ location.state }} {{ location.zip_code }}</TD></TR>
+					<TR><TD>{{ location.phone }}
 						</TD></TR>
                    </table>
 
@@ -31,9 +31,9 @@
 				  <thead class=" text-primary">
                     <th><i class="tim-icons icon-refresh-01 text-success "></i> <SPAN CLASS= "text-success"><B>Page Last Updated: {{ last_updated }}</B></SPAN></th><th></th><th></th></thead>
                     <tr><td><i class="tim-icons icon-single-02 text-primary "></i> Summary </td><td colspan="2"><i class="tim-icons icon-notes text-primary "></i> All Cases</td></tr>
-					<tr><td class=" text-primary">{{ last_updated }} Total</td><td class=" text-primary">Student</td><td>Employee</td></tr>
+					<tr><td class=" text-primary">Total</td><td class=" text-primary">Students</td><td>Employees</td></tr>
                     
-					<tr><td class=" text-primary">{{ todays_total }}</td><td class=" text-primary">{{ students }}</td><td>{{ employees }}</td></tr>
+					<tr><td class=" text-primary">{{ students+employees }}</td><td class=" text-primary">{{ students }}</td><td>{{ employees }}</td></tr>
 					<tbody>
                     </tbody>
                   </table>
@@ -43,11 +43,11 @@
           </div>
          </div>	
 		 <div class="row">
-          <div class="col-lg-5 col-md-12">
+          <div class="col-lg-4 col-md-12">
 			<div class="card ">
               <div class="card-header ">
-                <h5 class="card-category">Daily</h5>
-                <h4 class="card-title"><i class="tim-icons icon-alert-circle-exc text-danger "></i>  Cases summary for {{ detail }} </h3>
+                <h5 class="card-category">Daily Emails</h5>
+                <h4 class="card-title"><i class="tim-icons icon-alert-circle-exc text-danger "></i>  Cases summary for {{ location.school }}  {{ location.school_type }} </h3>
               </div>
               <div class="card-body ">
                 <div class="table-responsive">
@@ -77,7 +77,7 @@
 								{{ d[3] }}
 							</td>
 							<td>
-								
+
 							</td>
 						  </tr>
 						  {% endfor %}						
@@ -89,16 +89,42 @@
             </div>
           </div>	 
         </div>
-	
+		<div class="row">
+		  <div class="col-lg-10">
+		    <div class="card card-chart">
+			 <div class="row2">
+			   <div class="col-sm-6 text-left">
+                    <h5 class="card-category">Total Cases</h5>
+  			        <h4 class="card-title"><i class="tim-icons icon-sound-wave text-info "></i> Charts <h4>
+                </div>
+			    <div class="col-sm-6 ">
+                  <div class="btn-group btn-group-toggle float-right" data-toggle="buttons">
+                      <label class="btn btn-sm btn-primary btn-simple active" id="a">
+                        <input type="radio" name="options" autocomplete="off" checked> Last 14 Days
+                      </label>
+                      <label class="btn btn-sm btn-primary btn-simple " id="b">
+                        <input type="radio" name="options" autocomplete="off"> District Total
+                      </label>
+                  </div>
+                </div>
+			  </div>
+			  <div class="card-body">	      
+				<div class="chart-area">
+                  <canvas id="timeChart"></canvas>
+                </div>
+              </div>
+            </div>
+		  </div>
+        </div>
 					
 		
     {% endblock %}
 	{% block jsinclude %}
-	
 	<!-- Chart JS -->
     <script src="{{ url_for('static', filename='js/plugins/chartjs.min.js') }}"></script>
 	<!-- javascript init -->
-	<script>
+	
+		<script>
 		function createChart(label, data, canvas_id) {
 			gradientBarChartConfiguration = {
 			  maintainAspectRatio: false,
@@ -155,9 +181,9 @@
 			var ctx = document.getElementById(canvas_id).getContext('2d');
 			var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
 
-			gradientStroke.addColorStop(1, 'rgba(29,140,248,0.7)');
-			gradientStroke.addColorStop(0.4, 'rgba(29,140,248,0.06)');
-			gradientStroke.addColorStop(0, 'rgba(29,140,248,0)'); //blue colors
+			gradientStroke.addColorStop(1, 'rgba(255,0,0,0.7)');
+			gradientStroke.addColorStop(0.6, 'rgba(29,140,248,0.5)');
+			gradientStroke.addColorStop(0, 'rgba(29,140,248,0.1)'); //blue colors
 			var config = {			
 				type: 'bar',
 				responsive: true,
@@ -185,7 +211,7 @@
 			  chartInstance.destroy()
 			}
 			var chartInstance = new Chart(ctx, config);
-          }
+        }
 
 		  if (typeof chartInstance === 'undefined') {
 		    
@@ -195,8 +221,9 @@
 	        createChart({{ date_array }}, {{ count_array }}, 'timeChart');
 		  });
 		  $("#b").click(function() { 
-			createChart({{ date_array }}, {{ count_array }}, 'timeChart');
+			createChart({{ date_array2 }}, {{ count_array2 }}, 'timeChart');
 		  });
-		</script>
+	
+	</script>
 	{% endblock %}
 

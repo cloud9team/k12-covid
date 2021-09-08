@@ -4,39 +4,18 @@
     {% block contentrow %} 
          <!-- 2 table row -->
         <div class="row">
-          <div class="col-lg-4 col-md-12">
-            <div class="card ">
-              <div class="card-header ">
-                <h5 class="card-category">Schools</h5>
-				<div class="table-responsive">
-                  <table class="table tablesorter " id="1">
-                    <thead class=" text-primary">
-                      <th><i class="tim-icons icon-wifi text-success"></i> County </th><th></th></thead>
-				     <TR><TD> 
-					  <form method="post" action="/">
-                       <h4 class="card-title">
-			          <select class="form-control" id="level_select">				
-				      {% for c in counties %}
-				      <option>{{ c[0] }}</option>
-				      {% endfor %}
-				      </select></TD><TD><button type="submit" class="btn btn-fill btn-info animation-on-hover">Submit</button></TD></TR></TABLE>
-				    </form>
-                </div>
-			  </div>
-            </div>
-		   </div>
-		   <div class="col-lg-6">
+          <div class="col-lg-4">
             <div class="card ">
               <div class="card-header ">
                 <h5 class="card-category">Total Cases</h5>
 				<div class="table-responsive">
-                  <table class="table tablesorter " id="2">
+                  <table class="table tablesorter " id="1">
 				  <thead class=" text-primary">
-                    <th><i class="tim-icons icon-refresh-01 text-success "></i> <SPAN CLASS= "text-success"><B>Page Last Updated: {{ last_updated }}</B></SPAN></th><th></th><th></th></thead>
-                    <tr><td><i class="tim-icons icon-single-02 text-primary "></i> Summary </td><td colspan="2"><i class="tim-icons icon-notes text-primary "></i> All Cases</td></tr>
-					<tr><td class=" text-primary">{{ last_updated }} Total</td><td class=" text-primary">Student</td><td>Employee</td></tr>
+                    <th colspan="2"><i class="tim-icons icon-refresh-01 text-success "></i> <SPAN CLASS= "text-success"><B>Updated: {{ last_updated }}</B></SPAN></th><th></th></thead>
+                    <tr><td><i class="tim-icons icon-single-02 text-danger "></i> Summary </td><td colspan="3"><i class="tim-icons icon-notes text-danger "></i> All Cases</td></tr>
+					<tr><td class=" text-primary"><b>{{ last_updated }} Total</b></td><td class=" text-primary"><b>Students</b></td><td><b>Employees</b></td><TD><b>Total</b></TD></tr>
                     
-					<tr><td class=" text-primary">{{ todays_total }}</td><td class=" text-primary">{{ students }}</td><td>{{ employees }}</td></tr>
+					<tr><td class=" text-primary">{{ todays_total }} cases</td><td class=" text-primary">{{ students }}</td><td>{{ employees }}</td><td>{{ students+employees }}</TD></tr>
 					<tbody>
                     </tbody>
                   </table>
@@ -44,6 +23,30 @@
               </div>
             </div>
           </div>
+		  <div class="col-lg-4 col-md-12">
+            <div class="card ">
+              <div class="card-header ">
+                <h5 class="card-category">Districts</h5>
+				<div class="table-responsive">
+                  <table class="table tablesorter " id="2">
+                    <thead class=" text-primary">
+                      <th><i class="tim-icons icon-wifi text-success"></i> Totals Per District </th><th>Total</th><th>Percent of Total</th></thead>
+				     {% for d in districts %}
+					 <TR><TD>District {{ d[0] }} </TD><TD> {{ d[1] }}</TD>
+						{% if (d[1]/(students+employees)*100)|round(1) > 25 %}
+							<TD><SPAN CLASS="text-danger">{{ (d[1]/(students+employees)*100)|round(1) }}%</SPAN></TD></TR>
+						{% elif (d[1]/(students+employees)*100)|round(1) > 20 and (d[1]/(students+employees)*100)|round(1) <= 25 %}
+						    <TD><SPAN CLASS="text-warning">{{ (d[1]/(students+employees)*100)|round(1) }}%</SPAN></TD></TR>
+						{% else %}
+						    <TD><SPAN CLASS="text-success">{{ (d[1]/(students+employees)*100)|round(1) }}%</SPAN></TD></TR>
+						{% endif %}
+					{% endfor %}
+						
+					 </TABLE>
+                </div>
+			  </div>
+            </div>
+		   </div>
          </div>	
 		 <div class="row">
 		  <div class="col-lg-10">
@@ -243,8 +246,8 @@
 			var ctx = document.getElementById(canvas_id).getContext('2d');
 			var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
 
-			gradientStroke.addColorStop(1, 'rgba(29,140,248,0.7)');
-			gradientStroke.addColorStop(0.4, 'rgba(29,140,248,0.5)');
+			gradientStroke.addColorStop(1, 'rgba(255,0,0,0.7)');
+			gradientStroke.addColorStop(0.6, 'rgba(29,140,248,0.5)');
 			gradientStroke.addColorStop(0, 'rgba(29,140,248,0.1)'); //blue colors
 			var config = {			
 				type: 'bar',
@@ -273,7 +276,7 @@
 			  chartInstance.destroy()
 			}
 			var chartInstance = new Chart(ctx, config);
-          }
+        }
 
 		  if (typeof chartInstance === 'undefined') {
 		    
@@ -285,6 +288,30 @@
 		  $("#b").click(function() { 
 			createChart({{ date_array2 }}, {{ count_array2 }}, 'timeChart');
 		  });
+		</script>
+		<script>
+		new Chart(document.getElementById("pie-chart"), {
+			type: 'pie',
+			data: {
+			  display: false,
+			  labels: {{ label_array }},
+			  datasets: [{
+				label: "Population (millions)",
+				backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+				data: {{ district_array }}
+			  }]
+			},
+			options: {
+			   legend: {
+				display: false,
+				position: 'top'
+			  },
+			  title: {
+				display: false,
+				text: 'Predicted world population (millions) in 2050'
+			  }
+			}
+		});
 		</script>
 	{% endblock %}
 

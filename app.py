@@ -17,7 +17,6 @@ from handlers.db_covid import check_user_exists, get_user
 
 import os
 import importlib
-import datetime
 import json
 import secure
 secure_headers = secure.Secure()
@@ -54,10 +53,11 @@ def load_logged_in_user():
 @flask_app.after_request
 def set_secure_headers(response):
     secure_headers.framework.flask(response)
+
     return response
 
 
 if __name__ == '__main__':
     flask_app.jinja_env.auto_reload = True
     flask_app.config['TEMPLATES_AUTO_RELOAD'] = True
-    flask_app.run(host='127.0.0.1', port=int(config.PORT), threaded=True)
+    flask_app.run(debug=False, host='127.0.0.1', port=int(config.PORT), threaded=True)

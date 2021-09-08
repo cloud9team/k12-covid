@@ -4,7 +4,6 @@ import time
 import math
 import datetime
 from datetime import datetime, timedelta
-import time
 from contextlib import contextmanager
 from sqlalchemy import create_engine, Column, Boolean, Integer, String, Float, SmallInteger, \
         BigInteger, ForeignKey, Index, UniqueConstraint, \
@@ -190,7 +189,7 @@ def get_schools(session):
 def get_report(session, school_detail):
     school = session.query(Cases.school_name, Cases.date_reported, Cases.student, Cases.employee). \
                filter(Cases.school_name==school_detail). \
-                       order_by(Cases.date_reported).all()
+                       order_by(desc(Cases.date_reported)).all()
     return school
 
 
@@ -250,7 +249,8 @@ def get_weeks(session):
     count_array = ''
     for x in range(14):
         day = timedelta(x)
-        new_date = ((current_date + day)).strftime('%m-%d-%Y')
+        new_date = (current_date + day).strftime('%m-%d-%Y')
+#        new_date = current_date + day
         count = session.query((func.sum(Cases.employee) + func.sum(Cases.student).label('total'))). \
             filter(Cases.date_reported==new_date).scalar()
         if count == None:
@@ -262,46 +262,65 @@ def get_weeks(session):
 
     return date_array, count_array
 
-def get_all(session):
+def get_all(session, school = None):
     date_array = ''
     count_array = ''
-    dates = session.query(distinct(Cases.date_reported)).order_by(asc(Cases.date_reported))
-    for d in dates:
-        count = session.query((func.sum(Cases.employee) + func.sum(Cases.student).label('total'))). \
-            filter(Cases.date_reported==d[0]).scalar()
-        if count == None:
-            count = 0
-        count_array += str(count) + ", "
-        date_array += d[0][:-5].replace('-', '') + ", "
-    date_array = ('[' + date_array[:-2] + ']')
-    count_array = ('[' + count_array[:-2] + ']')
+    if school == None:
+        dates = session.query(distinct(Cases.date_reported)).order_by(asc(Cases.date_reported))
+        for d in dates:
+            count = session.query((func.sum(Cases.employee) + func.sum(Cases.student).label('total'))). \
+                filter(Cases.date_reported==d[0]).scalar()
+            if count == None:
+                count = 0
+            count_array += str(count) + ", "
+            date_array += d[0][:-5].replace('-', '') + ", "
+        date_array = ('[' + date_array[:-2] + ']')
+        count_array = ('[' + count_array[:-2] + ']')
+    else:
+        dates = session.query(distinct(Cases.date_reported)). \
+            filter(Cases.school_name==school).order_by(asc(Cases.date_reported))
+        for d in dates:
+            count = session.query((func.sum(Cases.employee) + func.sum(Cases.student).label('total'))). \
+                filter(Cases.school_name==school). \
+                    filter(Cases.date_reported==d[0]).scalar()
+
+            if count == None:
+                count = 0
+            count_array += str(count) + ", "
+            date_array += d[0][:-5].replace('-', '') + ", "
+        date_array = ('[' + date_array[:-2] + ']')
+        count_array = ('[' + count_array[:-2] + ']')
 
     return date_array, count_array
 
 
 
-#def district_totals(session):
-#    districts = session.query(distinct(Schools.district), (func.sum(Cases.student) + func.sum(Cases.employee)).label('total')). \
-#        join(Cases).filter(Schools.school==Cases.school_name). \
-#            filter(Schools.district.isnot(None)). \
-#                group_by(Schools.district). \
-#                    order_by(desc('total'))
+def district_totals(session):
+    districts = session.query(distinct(Schools.district), (func.sum(Cases.student) + func.sum(Cases.employee)).label('total')). \
+       outerjoin(Cases, Schools.school==Cases.school_name). \
+            filter(Schools.district.isnot(None)). \
+                group_by(Schools.district). \
+                    order_by(desc('total'))
 
-#    return districts
+    return districts
 
-def student_total(session, school=None):
+def student_total(session, school = None):
     if school is None:
         student_cases = session.query(func.sum(Cases.student)).scalar()
     else:
         student_cases = session.query(func.sum(Cases.student)). \
-            filter(Cases.school==school).scalar()
+            filter(Cases.school_name==school).scalar()
     if student_cases is None:
         student_cases = 0
     return student_cases
 
 
-def employee_total(session):
-    employee_cases = session.query(func.sum(Cases.employee)).scalar()
+def employee_total(session, school = None):
+    if school is None:
+        employee_cases = session.query(func.sum(Cases.employee)).scalar()
+    else:
+        employee_cases = session.query(func.sum(Cases.employee)). \
+            filter(Cases.school_name==school).scalar()
     if employee_cases is None:
         employee_cases = 0
     return employee_cases

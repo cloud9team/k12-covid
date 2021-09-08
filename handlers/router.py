@@ -11,12 +11,12 @@ import functools
 import time
 import datetime
 import io
-import csv
 import json
 from handlers import db_covid
 from handlers.db_covid import Session, county_list, get_schools, get_schools_type, add_case, \
     check_user_exists, student_total, employee_total, get_weeks, get_count, get_all_schools, \
-    get_today, get_weeks, get_today_cases, get_school_loc, last_update, get_report, get_all
+    get_today, get_weeks, get_today_cases, get_school_loc, last_update, get_report, get_all, \
+    district_totals
 import importlib
 import ast
 from datetime import datetime
@@ -67,10 +67,17 @@ def index():
         date_array, count_array = get_weeks(session)
         date_array2, count_array2 = get_all(session)
         last_updated = last_update(session)
-
-    return render_template("index.html", date_array2=date_array2, count_array2=count_array2, last_updated=last_updated, today=today, all_today=all_today, \
+        districts = district_totals(session)
+        district_array = ''
+        label_array = ''
+        for d in districts:
+           label_array += (str(d[0]) + ',')
+           district_array += (str(d[1]) + ',')
+        label_array = ('[' + label_array[:-1] + ']')
+        district_array = ('[' + district_array[:-1] + ']')
+    return render_template("index.html", district_array=district_array, label_array=label_array, districts=districts, date_array2=date_array2, count_array2=count_array2, last_updated=last_updated, today=today, all_today=all_today, \
         count_array=count_array, date_array=date_array, todays_total=todays_total, cases=cases, \
-            counties=counties ,students=students, employees=employees, school_list_e=school_list_e)
+            counties=counties, students=students, employees=employees, school_list_e=school_list_e)
 
 
 @router.route('/update', methods=('POST', 'GET'))
@@ -111,13 +118,18 @@ def newcases():
 @router.route('/report', methods=('GET', 'POST'))
 def report():
     detail = request.args.get('school')
-    current_date = datetime.now().strftime('%m-%d-%Y')
+#    current_date = datetime.now().strftime('%m-%d-%Y')
     with db_covid.session_scope() as session:
-        school_detail = get_report(session, detail)
         if detail == None:
             return redirect(url_for('router.index'))
+        school_detail = get_report(session, detail)
+        last_updated = last_update(session)
         location = get_school_loc(session, detail)
-        return render_template("report.html",location=location, detail=detail, school_detail=school_detail, current_date=current_date)
+        students = student_total(session, school=detail)
+        employees = employee_total(session, school=detail)
+        date_array, count_array = get_all(session, school = detail)
+        return render_template("report.html", last_updated=last_updated, students=students, \
+           date_array=date_array, count_array=count_array, employees=employees, location=location, detail=detail, school_detail=school_detail)
 
 @router.route('/map', methods=('GET', 'POST'))
 @login_required
