@@ -16,7 +16,7 @@ from handlers import db_covid
 from handlers.db_covid import Session, county_list, get_schools, get_schools_type, add_case, \
     check_user_exists, student_total, employee_total, get_weeks, get_count, get_all_schools, \
     get_today, get_weeks, get_today_cases, get_school_loc, last_update, get_report, get_all, \
-    district_totals
+    district_totals, send_mail, get_messages
 import importlib
 import ast
 from datetime import datetime
@@ -56,9 +56,8 @@ def login_required(view):
 @router.route('/')
 def index():
     with db_covid.session_scope() as session:
-        today = datetime.now().strftime('%m-%d-%Y')
+        today = datetime.now().strftime('%b %d %Y')
         all_today = get_today_cases(session)
-        cases = get_count(session)
         todays_total = get_today(session)
         counties = county_list(session)
         students = student_total(session)
@@ -75,8 +74,9 @@ def index():
            district_array += (str(d[1]) + ',')
         label_array = ('[' + label_array[:-1] + ']')
         district_array = ('[' + district_array[:-1] + ']')
-    return render_template("index.html", district_array=district_array, label_array=label_array, districts=districts, date_array2=date_array2, count_array2=count_array2, last_updated=last_updated, today=today, all_today=all_today, \
-        count_array=count_array, date_array=date_array, todays_total=todays_total, cases=cases, \
+    return render_template("index.html", district_array=district_array, label_array=label_array, \
+        districts=districts, date_array2=date_array2, count_array2=count_array2, last_updated=last_updated, \
+        today=today, all_today=all_today, count_array=count_array, date_array=date_array, todays_total=todays_total, \
             counties=counties, students=students, employees=employees, school_list_e=school_list_e)
 
 
@@ -85,6 +85,7 @@ def index():
 def update():
     with db_covid.session_scope() as session:
         result = ''
+        ad = 0
         if request.method == 'POST':
             f = request.form
             school_name = f['school_name']
@@ -98,6 +99,7 @@ def update():
             employee = 0
         result = add_case(session, school_name, student, employee, date_reported)
         students = student_total(session)
+        ad = 1
         return redirect(url_for('router.newcases', result=result, students=students))
 
 
@@ -110,9 +112,9 @@ def newcases():
         school_list = get_all_schools(session)
         students = student_total(session)
         employees = employee_total(session)
-
+        messages = get_messages(session)
         return render_template("newcases.html", counties=counties, school_list=school_list, \
-           students=students, employees=employees, current_date=current_date)
+           students=students, employees=employees, current_date=current_date, messages=messages)
 
 
 @router.route('/report', methods=('GET', 'POST'))
@@ -122,6 +124,7 @@ def report():
     with db_covid.session_scope() as session:
         if detail == None:
             return redirect(url_for('router.index'))
+        cases = get_count(session)
         school_detail = get_report(session, detail)
         last_updated = last_update(session)
         location = get_school_loc(session, detail)
@@ -129,7 +132,8 @@ def report():
         employees = employee_total(session, school=detail)
         date_array, count_array = get_all(session, school = detail)
         return render_template("report.html", last_updated=last_updated, students=students, \
-           date_array=date_array, count_array=count_array, employees=employees, location=location, detail=detail, school_detail=school_detail)
+           date_array=date_array, count_array=count_array, employees=employees, location=location, \
+              cases=cases,  detail=detail, school_detail=school_detail)
 
 @router.route('/map', methods=('GET', 'POST'))
 @login_required
@@ -138,6 +142,31 @@ def map():
         school_loc = get_school_loc(session)
 
         return render_template('map2.html', school_loc=school_loc)
+
+
+@router.route('/contact', methods=('GET', 'POST'))
+def contact():
+
+    error = None
+    if request.method == 'POST':
+        email = request.form['email']
+        message = request.form['message']
+        if email is None:
+            error = 'Email Required.'
+        if message is None:
+            error = 'Message Required.'
+
+        if error is None:
+           first_name = request.form['f_name']
+           last_name = request.form['l_name']
+           with db_covid.session_scope() as session:
+              new_mail = send_mail(session, first_name, last_name, email, message)
+              sent = '1'
+              return render_template('contact.html', sent=sent)
+    if error:
+        return render_template('contact.html', error=error)
+    else:
+       return render_template('contact.html')
 
 
 @router.route('/login', methods=('GET', 'POST'))
@@ -161,6 +190,11 @@ def login():
             return render_template('login.html', error=error)
         else:
             return render_template('login.html')
+
+
+
+
+
 
 
 @router.route('/logout')

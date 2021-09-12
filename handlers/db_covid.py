@@ -122,6 +122,18 @@ class Admins(Base):
     expire_timestamp = Column(Integer)
     session_id = Column(String(100))
 
+class Emails(Base):
+    __tablename__ = 'emails'
+
+    id = Column(HUGE_TYPE, primary_key=True)
+    f_name = Column(String(250))
+    l_name = Column(String(250))
+    email = Column(String(250))
+    message = Column(String(1500))
+    date_submitted = Column(MEDIUM_TYPE)
+    message_read = Column(TINY_TYPE)
+
+
 Session = sessionmaker(bind=engine)
 
 @contextmanager
@@ -199,6 +211,13 @@ def add_case(session, school_name, student, employee, date_reported):
     session.add(Cases(school_name=school_name,student=student,employee=employee,date_reported=date_reported))
     success = ('Added ' + school_name + ' ' + date_reported)
 
+    return success
+
+
+def send_mail(session, email, message, f_name=None, l_name=None):
+    current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    success = session.add(Emails(f_name=f_name, l_name=l_name, email=email, message=message, date_submitted=current_date))
+    
     return success
 
 # COUNTS
@@ -304,6 +323,16 @@ def district_totals(session):
 
     return districts
 
+def district_array(session):
+    district_daily =  session.query(Schools.district, date_reported, (func.sum(Cases.student) + func.sum(Cases.employee)).label('total')). \
+        outerjoin(Cases, Schools.school==Cases.school_name). \
+	    filter(Schools.district.isnot(None)). \
+                group_by(Schools.district, Cases.date_reported). \
+                    order_by(Cases.date_reported)
+
+    return district_daily
+
+
 def student_total(session, school = None):
     if school is None:
         student_cases = session.query(func.sum(Cases.student)).scalar()
@@ -327,15 +356,26 @@ def employee_total(session, school = None):
 
 
 def get_count(session):
-    current_date = datetime.now().strftime('%m-%d-%Y')
-    cases = session.query(func.sum(Cases.student).label('total')). \
-        filter(Cases.date_reported <= current_date). \
-           order_by(Cases.date_reported).all()
-
+    cases = 0
+    students = session.query(func.sum(Cases.student).label('students')).scalar()
+    employees = session.query(func.sum(Cases.employee).label('employees')).scalar()
+    cases = students + employees
     return cases
 
 
+
+
+
 ### Back-end User queries
+def get_messages(session):
+    current_date = datetime.now().strftime('%m-%-d%-%Y')
+    emails = session.query(Emails). \
+        filter(Emails.message_read == None). \
+           order_by(desc(Emails.date_submitted)).all()
+
+    return emails
+
+
 def root_user(session):
     count = 0
     count = session.query(Admins).count()
