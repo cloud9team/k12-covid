@@ -1,5 +1,4 @@
 # k12-covid
-# k12-covid
 Python Flask dashboard for dynamic tracking of k12 covid cases.<br>Python version 3.6
 Install -<br>
 clone repo.<br> 
