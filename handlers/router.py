@@ -16,7 +16,7 @@ from handlers import db_covid
 from handlers.db_covid import Session, county_list, get_schools, get_schools_type, add_case, \
     check_user_exists, student_total, employee_total, get_weeks, get_count, get_all_schools, \
     get_today, get_weeks, get_today_cases, get_school_loc, last_update, get_report, get_all, \
-    district_totals, send_mail, get_messages
+    district_totals, send_mail, get_messages, district_array
 import importlib
 import ast
 from datetime import datetime

@@ -43,9 +43,9 @@
               </div>
             </div>
           </div>
-         </div>	
+        </div>	
 		 
-		 <div class="row">
+		<div class="row">
           <div class="col-lg-9 col-md-12">
 			<div class="card ">
               <div class="card-header ">
@@ -115,6 +115,57 @@
 						 <td colspan="3" ALIGN="left"><p class="text-success">{{  request.args.get('result') }}</p></td>
 						 </tr>  
 
+                    </tbody>
+                  </table>
+				</div>
+              </div>
+            </div>
+          </div>
+        </div>	 
+		<div class="row">
+          <div class="col-lg-9 col-md-12">
+			<div class="card ">
+              <div class="card-header ">
+                <h5 class="card-category">Messages</h5>
+                <h4 class="card-title"><i class="tim-icons icon-button-power text-danger "></i> Unread</h3>
+              </div>
+              <div class="card-body ">
+                <div class="table-responsive">
+                  <table class="table tablesorter " id="4">
+                    <thead class=" text-primary">
+					  <th>
+  					    Date
+					  </th>
+                      <th>
+                        From
+                      </th>
+                      <th>
+                        Message
+                      </th>
+					  <th>
+                        Mark/Read
+                      </th>
+                    </thead>
+                    <tbody>
+					  <div class="card-body ">
+						{% for m in messages %}
+						<tr>
+						  <td> {{ m.date_submitted }} </TD>
+						  <TD> {{ m.from }} </td>
+						  <td> {{ m.message }} </td>
+						  <td></td>
+						 </tr>
+						 {% endfor %}
+						 <tr>
+						 <td>
+						 <div class="card-footer">
+                			<button type="submit" class="btn btn-fill btn-info animation-on-hover">Submit</button>
+						 </div>
+						 </form>
+						 </td>
+						 <td colspan="3" ALIGN="left"><p class="text-success">{{  request.args.get('result') }}</p></td>
+						 </tr>  
+
                       </tbody>
                     </table>
 				  </div>
@@ -122,125 +173,7 @@
               </div>
             </div>
           </div>	 
-        </div>	
-		
+        
 		
     {% endblock %}
-	{% block jsinclude %}
-	<!-- javascript init -->
-	<script>
-		function createChart(label, data, canvas_id) {
-			gradientBarChartConfiguration = {
-			  maintainAspectRatio: false,
-			  legend: {
-				display: false
-			  },
-
-			  tooltips: {
-				backgroundColor: '#f5f5f5',
-				titleFontColor: '#333',
-				bodyFontColor: '#666',
-				bodySpacing: 4,
-				xPadding: 12,
-				mode: "nearest",
-				intersect: 0,
-				position: "nearest"
-			  },
-			  events: [],
-			  responsive: true,
-			  scales: {
-				yAxes: [{
-
-				  gridLines: {
-					drawBorder: false,
-					color: 'rgba(29,140,248,0.1)',
-					zeroLineColor: "transparent",
-				  },
-				  ticks: {
-					suggestedMin: 0,
-					suggestedMax: 5,
-					padding: 5,
-					fontColor: "#9e9e9e"
-				  }
-				}],
-
-				xAxes: [{
-
-				  gridLines: {
-					drawBorder: false,
-					color: 'rgba(29,140,248,0.1)',
-					zeroLineColor: "transparent",
-				  },
-				  ticks: {
-					padding: 5,
-					fontColor: "#9e9e9e"
-				  }
-				}]
-			  }
-			};
-		
-			var data_array = data;
-			var label_array = label;
-
-			var ctx = document.getElementById(canvas_id).getContext('2d');
-			var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
-
-			gradientStroke.addColorStop(1, 'rgba(29,140,248,0.2)');
-			gradientStroke.addColorStop(0.4, 'rgba(29,140,248,0.06)');
-			gradientStroke.addColorStop(0, 'rgba(29,140,248,0)'); //blue colors
-			var config = {			
-				type: 'bar',
-				responsive: true,
-					legend: {
-						display: false
-					},
-				data: {
-					labels: label_array,
-					datasets: [{
-						label: "Run Time",
-						fill: true,
-						backgroundColor: gradientStroke,
-						hoverBackgroundColor: gradientStroke,
-						borderColor: '#1f8ef1',
-						borderWidth: 2,
-						borderDash: [],
-						borderDashOffset: 0.0,
-						data: data_array,
-						}]
-					},
-				options: gradientBarChartConfiguration
-				
-			};
-			if (typeof chartInstance !== 'undefined') {
-			  chartInstance.destroy()
-			}
-			var chartInstance = new Chart(ctx, config);
-          }
-		  if (typeof chartInstance === 'undefined') {
-			createChart({{ spins }}, {{ run_time }}, 'timeChart');  
-		  }
-		  $("#a").click(function() {
-		    createChart({{ spins }}, {{ run_time }}, 'timeChart');
-		  });
-		  $("#b").click(function() {
-			createChart({{ spins_fast }}, {{ fast_time }}, 'timeChart');
-		  });
-		</script>
-        <script>
-		// jquery auto refresh on table id
-		$(document).ready(
-			 function() {
-			 setInterval(function() {
-			  $("#1").load(" #1 > *")
-			  $("#2").load(" #2 > *")
-			 }, 10000);  //Delay here = 10 seconds 
-		});
-  		$(document).ready(
-			 function() {
-			 setInterval(function() {
-			  $("#3").load(" #3 > *")
-			 }, 120000);  //Delay here = 2 minutes 
-		});
-		</script>
-	{% endblock %}
 

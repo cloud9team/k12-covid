@@ -1,0 +1,97 @@
+{% extends "dash.html" %}
+	{% block title %}Send Message{% endblock %}
+    {% block header %}Send Message{% endblock %}
+    {% block contentrow %}
+	   {% if sent == '1' %}
+	    <script type="text/javascript">
+		(function(){
+			setTimeout(function(){
+			window.location="https://thelocaltrust.com/dash";
+			},5000); /* 1000 = 1 second*/
+		})();
+	   </script>
+	   <div class="row">
+          <div class="col-lg-6 col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="title">Contact</h5>
+              </div>
+              <div class="card-body">
+                <h4 CLASS="text-success">Your message has been sent. <A HREF="https://thelocaltrust.com/dash">Click here</A> if you're not redirected in 5 seconds.</h4>				
+              </div>				
+            </div>
+          </div>
+		</div>
+	   
+	   {% else %}
+		<div class="row">
+          <div class="col-lg-6 col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="title">Contact</h5>
+              </div>
+			  {% if error %}
+			    <div class="alert alert-danger" role="alert">
+	    	      {{ error }}
+			    </div>
+			  {% endif %}
+              <div class="card-body">
+                <form method="post">
+				  <div class="row2">
+				    <div class="col-md-5 pr-md-1">
+                      <div class="form-group">
+                        <label>First Name</label><BR>
+					    <input type="text" class="form-control" name="f_name" id="f_name">
+                      </div>
+					</div>
+					<div class="col-md-5 px-md-1">
+				      <div class="form-group">
+                        <label>Last Name</label><BR>
+					    <input type="text" class="form-control" name="l_name" id="l_name">
+				      </div>
+					</div>
+			      </div>
+				  <div class="row2">
+				    <div class="col-md-6 pr-md-1">
+                      <div class="form-group">
+                        <label>Email <SPAN CLASS="text-danger">(Required)</SPAN></label><BR>
+					    <input type="text" class="form-control" name="email" id="email" REQUIRED>
+				      </div>
+					</div>
+				  </div>
+				  <div class="row2">
+				    <div class="col-md-10 pr-md-1">
+                      <div class="form-group">
+                        <label>Message <SPAN CLASS="text-danger">(Required)</SPAN></label><BR>
+					    <textarea rows="4" cols="8" class="form-control" name="message" id="message" REQUIRED></textarea>
+				      </div>
+					</div>
+			      </div>
+				  <div class="row2">
+				    <div class="col-md-6 pr-md-1">
+				      <div class="card-footer">
+					    <button type="submit" class="btn btn-fill btn-info animation-on-hover"" value="Submit">Send</button>
+			          </div>
+					</div>
+                  </div>
+                </form>
+              </div>				
+            </div>
+          </div>
+		</div>
+	{% endif %}	
+	{% endblock %}  
+		  
+		  
+<!--
+  <form method="post">
+    <label for="f_name">First Name</label><BR>
+    <input name="f_name" id="f_name"><BR>
+	<label for="l_name">Last Name</label><BR>
+    <input name="l_name" id="l_name"><BR>
+    <label for="email">Email</label><BR>
+    <input type="email" name="email" id="email" required><BR>
+    <label for="message">Message</label><BR>
+    <input type="text area" name="message" id="message" required><BR>
+	<input type="submit" value="Submit">
+  </form> -->
